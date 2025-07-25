@@ -355,6 +355,10 @@ namespace GSTHD
                 {
                     settings.DefaultPathGoalCount = App_Settings.DefaultPathGoalCount.Value;
                 }
+                if (App_Settings.DefaultPathGoalsChecklist.HasValue)
+                {
+                    settings.DefaultPathGoalsChecklist = App_Settings.DefaultPathGoalsChecklist.Value;
+                }
                 if (App_Settings.DefaultWothGossipStoneCount.HasValue)
                 {
                     settings.DefaultWothGossipStoneCount = App_Settings.DefaultWothGossipStoneCount.Value;
@@ -2101,6 +2105,8 @@ namespace GSTHD
         public string[] PathGoalImageCollection { get; set; }
         public int PathGoalSpacing { get; set; }
         public bool PathCycling { get; set; } = false;
+        public bool? PathGoalsChecklist { get; set; }
+        public PathGoal[] PathGoals { get; set; }
         public string OuterPathID { get; set; }
 
         public PictureBoxSizeMode SizeMode { get; set; } = PictureBoxSizeMode.Zoom;
@@ -2223,6 +2229,8 @@ namespace GSTHD
 
         public int? PathGoalCount { get; set; } = 0;
         public string[] PathGoalImageCollection { get; set; }
+        public PathGoal[] PathGoals { get; set; }
+        public bool? PathGoalsChecklist { get; set; }
         public int PathGoalSpacing { get; set; }
         public bool PathCycling { get; set; } = false;
         public string OuterPathID { get; set; }
@@ -2238,6 +2246,14 @@ namespace GSTHD
         public Size CounterSize { get; set; }
 
         public Size SubTextBoxSize { get; set; }
+    }
+
+    public class PathGoal
+    { 
+        public string Keycode { get; set; }
+        public string CheckedImage { get; set; }
+        public string UncheckedImage { get; set; }
+        public string GoalImage { get; set; }
     }
 
     public class ObjectPanelSpoiler
@@ -2345,6 +2361,7 @@ namespace GSTHD
         public string[] DefaultSongMarkerImages { get; set; } = null;
         public string[] DefaultGossipStoneImages { get; set; } = null;
         public string[] DefaultPathGoalImages { get; set; } = null; 
+        public bool? DefaultPathGoalsChecklist { get; set; } = null; 
         public int? DefaultWothGossipStoneCount { get; set; } = null;
         public int? DefaultPathGoalCount { get; set; } = null;
         public string[] WothColors { get; set; }

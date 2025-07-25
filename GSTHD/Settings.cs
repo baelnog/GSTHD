@@ -141,6 +141,8 @@ namespace GSTHD
         public string[] DefaultGossipStoneImages { get; set; } = new string[0];
         public string[] DefaultPathGoalImages { get; set; } = new string[0];
         public int DefaultPathGoalCount { get; set; } = 0;
+        public bool DefaultPathGoalsChecklist { get; set; } = false;
+        public PathGoal[] DefaultPathGoals { get; set; } = new PathGoal[0];
         public int DefaultWothGossipStoneCount { get; set; } = 4;
         public string[] DefaultWothColors { get; set; } = new string[]
         {

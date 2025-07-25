@@ -57,7 +57,7 @@ namespace GSTHD
         public WotH(Settings settings,
             string selectedPlace,
             int gossipStoneCount, string[] wothItemImageList, int gossipStoneSpacing,
-            int pathGoalCount, string[] pathGoalImageList, int pathGoalSpacing,
+            int pathGoalCount, string[][] pathGoalImageList, int pathGoalSpacing,
             Point lastLabelLocation, Label labelSettings, Size gossipStoneSize, Color gossipStoneBackColor, bool isScrollable, PictureBoxSizeMode SizeMode, bool isBroadcastable, bool PathCycling, bool isMarkable)
         {
             Settings = settings;
@@ -110,7 +110,7 @@ namespace GSTHD
             {
                 for (int i = 0; i < pathGoalCount; i++)
                 {
-                    GossipStone newGossipStone = new GossipStone(Settings, true, Name + "_GoalGossipStone" + i, 0, 0, pathGoalImageList, gossipStoneSize, isScrollable, SizeMode, isBroadcastable, PathCycling, isMarkable:isMarkable);
+                    GossipStone newGossipStone = new GossipStone(Settings, true, Name + "_GoalGossipStone" + i, 0, 0, pathGoalImageList[i], gossipStoneSize, isScrollable, SizeMode, isBroadcastable, PathCycling, isMarkable:isMarkable);
                     newGossipStone.BackColor = GossipStoneBackColor;
                     newGossipStone.Location =
                         new Point((newGossipStone.Width + pathGoalSpacing) * i, LabelPlace.Location.Y);
@@ -175,7 +175,7 @@ namespace GSTHD
         }
 
         public void RefreshLocation(int gossipStoneCount, string[] wothItemImageList, int gossipStoneSpacing,
-                        int pathGoalCount, string[] pathGoalImageList, int pathGoalSpacing,
+                        int pathGoalCount, string[][] pathGoalImageList, int pathGoalSpacing,
                         int LabelLastHeight, Label labelSettings, Size gossipStoneSize, Color gossipStoneBackColor, bool isScrollable, PictureBoxSizeMode SizeMode, bool isBroadcastable, bool PathCycling, bool isMarkable)
         {
             var labelStartX = 0;
@@ -252,7 +252,7 @@ namespace GSTHD
                     {
                         // modify old stone
                         GossipStone tempstone = temp.First();
-                        tempstone.ImageNames = pathGoalImageList;
+                        tempstone.ImageNames = pathGoalImageList[i];
                         tempstone.Size = gossipStoneSize;
                         tempstone.isScrollable = isScrollable;
                         tempstone.SizeMode = SizeMode;
@@ -266,7 +266,7 @@ namespace GSTHD
                     else
                     {
                         // make new stone
-                        GossipStone newGossipStone = new GossipStone(Settings, true, Name + "_GoalGossipStone" + i, 0, 0, pathGoalImageList, gossipStoneSize, isScrollable, SizeMode, isBroadcastable, isMarkable: isMarkable);
+                        GossipStone newGossipStone = new GossipStone(Settings, true, Name + "_GoalGossipStone" + i, 0, 0, pathGoalImageList[i], gossipStoneSize, isScrollable, SizeMode, isBroadcastable, isMarkable: isMarkable);
                         newGossipStone.BackColor = gossipStoneBackColor;
                         newGossipStone.Location =
                             new Point((newGossipStone.Width + pathGoalSpacing) * i, LabelPlace.Location.Y);

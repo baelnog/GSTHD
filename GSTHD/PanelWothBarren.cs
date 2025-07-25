@@ -38,7 +38,9 @@ namespace GSTHD
         public int GossipStoneCount { get; set; }
         public string[] ListImage_WothItemsOption { get; set; }
         public int PathGoalCount { get; set; }
+        public bool PathGoalsChecklist { get; set; }
         public string[] ListImage_GoalsOption { get; set; }
+        public PathGoal[] PathGoals { get; set; }
         public int CounterFontSize { get; set; }
         public int CounterSpacing { get; set; }
         private string CounterImage;
@@ -69,6 +71,8 @@ namespace GSTHD
             this.Size = new Size(data.Width, data.Height);
             this.GossipStoneCount = data.GossipStoneCount.HasValue ? data.GossipStoneCount.Value : settings.DefaultWothGossipStoneCount;
             this.PathGoalCount = data.PathGoalCount.HasValue ? data.PathGoalCount.Value : settings.DefaultPathGoalCount;
+            this.PathGoalsChecklist = data.PathGoalsChecklist ?? settings.DefaultPathGoalsChecklist;
+            this.PathGoals = data.PathGoals ?? settings.DefaultPathGoals;
             this.GossipStoneSpacing = data.GossipStoneSpacing;
             this.GossipStoneBackColor = (data.GossipStoneBackColor != null) ? data.GossipStoneBackColor : data.BackColor;
             this.PathGoalSpacing = data.PathGoalSpacing;
@@ -455,6 +459,7 @@ namespace GSTHD
             string selectedPlace;
             int usedPathGoalCount = PathGoalCount;
             string usedOuterPathID = OuterPathID;
+            var pathGoalsChecklist = Sub != null ? (Sub.PathGoalsChecklist ?? Settings.DefaultPathGoalsChecklist) : PathGoalsChecklist;
             if (Sub != null)
             {
                 usedPathGoalCount = (int)Sub.PathGoalCount;
@@ -505,17 +510,69 @@ namespace GSTHD
                         Width = LabelSettings.Width,
                         Height = LabelSettings.Height
                     };
-                    
+
+                    var goalCount = (Sub.PathGoalCount ?? Settings.DefaultPathGoalCount);
+                    var pathImages = Sub.PathGoals?.Select(goal => new string[]
+                        {
+                            goal.UncheckedImage,
+                            goal.GoalImage,
+                            goal.CheckedImage
+                        })?.ToArray();
+                    if (pathImages == null)
+                    {
+                        var imageCollection = (Sub.PathGoalImageCollection ?? Settings.DefaultPathGoalImages);
+                        pathImages = new string[goalCount][];
+                        for (int i = 0; i < pathImages.Length; i++)
+                        {
+                            if (pathGoalsChecklist)
+                            {
+                                pathImages[i] = new string[] { imageCollection.First(), imageCollection[i + 1], imageCollection.Last() };
+                            }
+                            else
+                            {
+                                pathImages[i] = imageCollection;
+                            }
+                        }
+                    }
+                    if (goalCount > pathImages.Length)
+                    {
+                        // if the path goals are not enough, then use the default path goal images
+                        goalCount = pathImages.Length;
+                    }
+
                     newWotH = new WotH(Settings, selectedPlace,
                             (Sub.GossipStoneCount ?? Settings.DefaultWothGossipStoneCount), (Sub.GossipStoneImageCollection ?? Settings.DefaultGossipStoneImages), Sub.GossipStoneSpacing,
-                            (Sub.PathGoalCount ?? Settings.DefaultPathGoalCount), (Sub.PathGoalImageCollection ?? Settings.DefaultPathGoalImages), Sub.PathGoalSpacing,
+                            goalCount, pathImages, Sub.PathGoalSpacing,
                             newlocation, tempLabel, Sub.GossipStoneSize, Sub.GossipStoneBackColor, this.isScrollable, Sub.SizeMode, Sub.isBroadcastable, Sub.PathCycling, Sub.isMarkable);
                     newWotH.PlacedOrder = Sub.Order;
-                } else
+                }
+                else
                 {
+                    var pathImages = Sub?.PathGoals?.Select(goal => new string[]
+                        {
+                            goal.UncheckedImage,
+                            goal.GoalImage,
+                            goal.CheckedImage
+                        })?.ToArray();
+                    if (pathImages == null)
+                    {
+                        pathImages = new string[PathGoalCount][];
+                        for (int i = 0; i < pathImages.Length; i++)
+                        {
+                            if (pathGoalsChecklist)
+                            {
+                                pathImages[i] = new string[] { ListImage_GoalsOption.First(), ListImage_GoalsOption[i + 1], ListImage_GoalsOption.Last() };
+                            }
+                            else
+                            {
+                                pathImages[i] = ListImage_GoalsOption;
+                            }
+                        }
+                    }
+
                     newWotH = new WotH(Settings, selectedPlace,
                             GossipStoneCount, ListImage_WothItemsOption, GossipStoneSpacing,
-                            PathGoalCount, ListImage_GoalsOption, PathGoalSpacing,
+                            PathGoalCount, pathImages, PathGoalSpacing,
                             newlocation, LabelSettings, GossipStoneSize, this.GossipStoneBackColor, this.isScrollable, this.SizeMode, this.isBroadcastable, this.PathCycling, this.isMarkable);
                 }
 
@@ -536,12 +593,36 @@ namespace GSTHD
                         int y = 0;
                         foreach (var z in FoundKeycodes)
                         {
+                            var index = y;
                             // spreads the paths evenly across multiple path stones (if applicable)
-                            pathStone = newWotH.listGossipStone.Where(x => x.Name == newWotH.Name + $"_GoalGossipStone{y}").ToList()[0];
-                            if (!pathStone.HeldImages.Contains(z.Value)) pathStone.HeldImages.Add(z.Value);
-                            if (usedPathGoalCount > 1) y = (y + 1) % (usedPathGoalCount);
-                            pathStone.HoldsImage = true;
-                            pathStone.UpdateImage();
+                            if (pathGoalsChecklist)
+                            {
+                                if (Sub != null)
+                                {
+                                    index = Sub.PathGoals.ToList().FindIndex(goal => goal.Keycode.ToUpperInvariant() == z.Key.ToUpperInvariant());
+                                }
+                                else
+                                {
+                                    index = PathGoals.ToList().FindIndex(goal => goal.Keycode.ToUpperInvariant() == z.Key.ToUpperInvariant());
+                                }
+                            }
+                            if (index < 0)
+                            {
+                                continue;
+                            }
+                            pathStone = newWotH.listGossipStone.Where(x => x.Name == newWotH.Name + $"_GoalGossipStone{index}").ToList()[0];
+                            if (pathGoalsChecklist)
+                            {
+                                pathStone.ResetState();
+                                pathStone.IncrementState();
+                            }
+                            else
+                            {
+                                if (!pathStone.HeldImages.Contains(z.Value)) pathStone.HeldImages.Add(z.Value);
+                                if (usedPathGoalCount > 1) y = (y + 1) % (usedPathGoalCount);
+                                pathStone.HoldsImage = true;
+                                pathStone.UpdateImage();
+                            }
                         }
                     } else if (OuterPathID != null)
                     {
@@ -1097,8 +1178,21 @@ namespace GSTHD
             {
                 if (Hint is WotH woth)
                 {
+                    var goalImages = ListImage_GoalsOption ?? Settings.DefaultPathGoalImages;
+                    var goals = new string[PathGoalCount][];
+                    for(int i = 0; i < goals.Length; i++)
+                    {
+                        if (PathGoalsChecklist)
+                        {
+                            goals[i] = new string[] { goalImages.First(), goalImages[i + 1], goalImages.Last() };
+                        }
+                        else
+                        {
+                            goals[i] = goalImages;
+                        }
+                    }
                     if (woth.PlacedOrder == -1) woth.RefreshLocation(GossipStoneCount, ListImage_WothItemsOption ?? Settings.DefaultGossipStoneImages, GossipStoneSpacing,
-                            PathGoalCount, ListImage_GoalsOption ?? Settings.DefaultPathGoalImages, PathGoalSpacing,
+                            PathGoalCount, goals, PathGoalSpacing,
                             tempcount * LabelSettings.Size.Height, LabelSettings, GossipStoneSize, this.GossipStoneBackColor, this.isScrollable, this.SizeMode, this.isBroadcastable, this.PathCycling, this.isMarkable);
                     tempcount++;
                     foreach (var stone in woth.listGossipStone)
