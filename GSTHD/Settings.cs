@@ -143,6 +143,7 @@ namespace GSTHD
         public int DefaultPathGoalCount { get; set; } = 0;
         public bool DefaultPathGoalsChecklist { get; set; } = false;
         public PathGoal[] DefaultPathGoals { get; set; } = new PathGoal[0];
+        public bool DefaultSortByGoalCount { get; set; } = false;
         public int DefaultWothGossipStoneCount { get; set; } = 4;
         public string[] DefaultWothColors { get; set; } = new string[]
         {

@@ -49,7 +49,7 @@ namespace GSTHD
         public List<string> HeldImages { get; set; } = new List<string>();
         private int CycleIndex { get; set; } = 0;
         private bool canCycle { get; set; } = false;
-        private int ImageIndex = 0;
+        public int ImageIndex { get; private set; } = 0;
         private bool RemoveImage;
         public bool isScrollable;
         public bool isBroadcastable { get; set; }

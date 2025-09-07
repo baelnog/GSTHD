@@ -359,6 +359,10 @@ namespace GSTHD
                 {
                     settings.DefaultPathGoalsChecklist = App_Settings.DefaultPathGoalsChecklist.Value;
                 }
+                if (App_Settings.DefaultSortByGoalCount.HasValue)
+                {
+                    settings.DefaultSortByGoalCount = App_Settings.DefaultSortByGoalCount.Value;
+                }
                 if (App_Settings.DefaultWothGossipStoneCount.HasValue)
                 {
                     settings.DefaultWothGossipStoneCount = App_Settings.DefaultWothGossipStoneCount.Value;
@@ -2107,6 +2111,7 @@ namespace GSTHD
         public bool PathCycling { get; set; } = false;
         public bool? PathGoalsChecklist { get; set; }
         public PathGoal[] PathGoals { get; set; }
+        public bool? SortByGoalCount { get; set; }
         public string OuterPathID { get; set; }
 
         public PictureBoxSizeMode SizeMode { get; set; } = PictureBoxSizeMode.Zoom;
@@ -2231,6 +2236,7 @@ namespace GSTHD
         public string[] PathGoalImageCollection { get; set; }
         public PathGoal[] PathGoals { get; set; }
         public bool? PathGoalsChecklist { get; set; }
+        public bool? SortByGoalCount { get; set; }
         public int PathGoalSpacing { get; set; }
         public bool PathCycling { get; set; } = false;
         public string OuterPathID { get; set; }
@@ -2362,6 +2368,7 @@ namespace GSTHD
         public string[] DefaultGossipStoneImages { get; set; } = null;
         public string[] DefaultPathGoalImages { get; set; } = null; 
         public bool? DefaultPathGoalsChecklist { get; set; } = null; 
+        public bool? DefaultSortByGoalCount { get; set; } = null; 
         public int? DefaultWothGossipStoneCount { get; set; } = null;
         public int? DefaultPathGoalCount { get; set; } = null;
         public string[] WothColors { get; set; }

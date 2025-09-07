@@ -41,6 +41,7 @@ namespace GSTHD
         public bool PathGoalsChecklist { get; set; }
         public string[] ListImage_GoalsOption { get; set; }
         public PathGoal[] PathGoals { get; set; }
+        public bool SortByGoalCount { get; set; }
         public int CounterFontSize { get; set; }
         public int CounterSpacing { get; set; }
         private string CounterImage;
@@ -73,6 +74,7 @@ namespace GSTHD
             this.PathGoalCount = data.PathGoalCount.HasValue ? data.PathGoalCount.Value : settings.DefaultPathGoalCount;
             this.PathGoalsChecklist = data.PathGoalsChecklist ?? settings.DefaultPathGoalsChecklist;
             this.PathGoals = data.PathGoals ?? settings.DefaultPathGoals;
+            this.SortByGoalCount = data.SortByGoalCount ?? settings.DefaultSortByGoalCount;
             this.GossipStoneSpacing = data.GossipStoneSpacing;
             this.GossipStoneBackColor = (data.GossipStoneBackColor != null) ? data.GossipStoneBackColor : data.BackColor;
             this.PathGoalSpacing = data.PathGoalSpacing;
@@ -465,6 +467,7 @@ namespace GSTHD
                 usedPathGoalCount = (int)Sub.PathGoalCount;
                 usedOuterPathID = null;
             }
+            var sortByGoalCount = Sub != null ? (Sub.SortByGoalCount ?? Settings.DefaultSortByGoalCount) : SortByGoalCount;
             if ((codestring!="" || codestring != string.Empty) && (usedPathGoalCount > 0 || usedOuterPathID != null) && Settings.HintPathAutofill)
             {
                 // if theres a letter that isnt a code, bail
@@ -545,6 +548,7 @@ namespace GSTHD
                             goalCount, pathImages, Sub.PathGoalSpacing,
                             newlocation, tempLabel, Sub.GossipStoneSize, Sub.GossipStoneBackColor, this.isScrollable, Sub.SizeMode, Sub.isBroadcastable, Sub.PathCycling, Sub.isMarkable);
                     newWotH.PlacedOrder = Sub.Order;
+                    newWotH.SortByGoalCount = sortByGoalCount;
                 }
                 else
                 {
@@ -574,6 +578,7 @@ namespace GSTHD
                             GossipStoneCount, ListImage_WothItemsOption, GossipStoneSpacing,
                             PathGoalCount, pathImages, PathGoalSpacing,
                             newlocation, LabelSettings, GossipStoneSize, this.GossipStoneBackColor, this.isScrollable, this.SizeMode, this.isBroadcastable, this.PathCycling, this.isMarkable);
+                    newWotH.SortByGoalCount = sortByGoalCount;
                 }
 
                 ListHints.Add(newWotH);
@@ -756,6 +761,43 @@ namespace GSTHD
         private void SortAndReorderHints()
         {
             // sort by their placedorder
+            ListHints.Sort((hint1, hint2) =>
+            {
+                var placedOrderComparison = hint1.PlacedOrder.CompareTo(hint2.PlacedOrder);
+                if (placedOrderComparison != 0)
+                {
+                    return placedOrderComparison;
+                }
+                if (hint1 is WotH path1 && hint2 is WotH path2)
+                {
+                    if (path1.listPathGoalGossipStone.Count != path2.listPathGoalGossipStone.Count)
+                    {
+                        return path1.listPathGoalGossipStone.Count.CompareTo(path2.listPathGoalGossipStone.Count);
+                    }
+                    if (path1.SortByGoalCount != path2.SortByGoalCount)
+                    {
+                        return path1.SortByGoalCount.CompareTo(path2.SortByGoalCount);
+                    }
+                    if (path1.SortByGoalCount)
+                    {
+                        var selectedGoals1 = path1.listPathGoalGossipStone.Where(x => x.ImageIndex > 0).Count();
+                        var selectedGoals2 = path2.listPathGoalGossipStone.Where(x => x.ImageIndex > 0).Count();
+                        if (selectedGoals1 != selectedGoals2)
+                        {
+                            return selectedGoals2.CompareTo(selectedGoals1);
+                        }
+                        foreach (var goalPair in path1.listPathGoalGossipStone.Zip(path2.listPathGoalGossipStone, (g1, g2) => (g1, g2)))
+                        {
+                            var goalComparison = goalPair.g2.ImageIndex.CompareTo(goalPair.g1.ImageIndex);
+                            if (goalComparison != 0)
+                            {
+                                return goalComparison;
+                            }
+                        }
+                    }
+                }
+                return 0;
+            });
             ListHints = ListHints.OrderBy(i => i.PlacedOrder).ToList();
             for (int i = 0; i < ListHints.Count; i++)
             {

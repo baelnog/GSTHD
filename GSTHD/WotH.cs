@@ -41,6 +41,8 @@ namespace GSTHD
 
         public LabelExtended LabelPlace { get; set; }
         public List<GossipStone> listGossipStone = new List<GossipStone>();
+        public List<GossipStone> listPathGoalGossipStone = new List<GossipStone>();
+        public List<GossipStone> listWothItemGossipStone = new List<GossipStone>();
         public string Name { get; set; }
 
         private Color[] Colors;
@@ -51,6 +53,7 @@ namespace GSTHD
         private int pathCount;
 
         public int PlacedOrder { get; set; }
+        public bool SortByGoalCount { get; set; }
 
         private Color GossipStoneBackColor;
 
@@ -103,6 +106,7 @@ namespace GSTHD
                     newGossipStone.Location =
                         new Point(gossipStoneStartX + (newGossipStone.Width + gossipStoneSpacing) * i, LabelPlace.Location.Y);
                     listGossipStone.Add(newGossipStone);
+                    listWothItemGossipStone.Add(newGossipStone);
                 }
             }
 
@@ -115,6 +119,7 @@ namespace GSTHD
                     newGossipStone.Location =
                         new Point((newGossipStone.Width + pathGoalSpacing) * i, LabelPlace.Location.Y);
                     listGossipStone.Add(newGossipStone);
+                    listPathGoalGossipStone.Add(newGossipStone);
                 }
             }
 
