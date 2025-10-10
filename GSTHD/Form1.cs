@@ -481,7 +481,7 @@ namespace GSTHD
                 {
                     MedallionState state = x.GetState();
                     string conv = state.ToString();
-                    if (conv != "0,0,0")
+                    if (conv != $"{x.DefaultDungeonIndex},0,0")
                     {
                         thejson.Add(x.Name, conv);
                     }
@@ -596,7 +596,7 @@ namespace GSTHD
                 if (thejson.HasValues)
                 {
                     if (!Directory.Exists("Autosaves")) Directory.CreateDirectory("Autosaves");
-                    File.WriteAllText(@"Autosaves/auto" + DateTime.Now.ToString("MM-dd-yyyy") + ".json", thejson.ToString());
+                    File.WriteAllText(@"Autosaves/auto" + DateTime.Now.ToString("MM-dd-yyyy") + "_" + this.Settings.GetLayoutName() + ".json", thejson.ToString());
 
                 }
             }
