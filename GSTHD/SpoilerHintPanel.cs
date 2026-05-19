@@ -77,6 +77,7 @@ namespace GSTHD
         private bool isOnBroadcast = false;
         public bool isMarkable = true;
         private bool hasStartingInLog = false;
+        private bool stupidStartingSlam = false;
 
         private static readonly Regex unspacer = new Regex(@"\s+");
 
@@ -294,22 +295,28 @@ namespace GSTHD
                     }
                 }
 
-                //tempstarting = parsedStartingInfo["starting_moves_not_hintable"].ToObject<List<string>>();
-                foreach (var move in tempstarting)
+                try
                 {
-                    if (move == "Camera and Shockwave") continue;
-                    var tempitem = DK64Items.FirstOrDefault(x => x.Value.name == move);
-                    if (tempitem.Key != 36)
+                    tempstarting = parsedStartingInfo["starting_moves_not_hintable"].ToObject<List<string>>();
+                    foreach (var move in tempstarting)
                     {
-                        startingNotHintable.Add(tempitem.Key);
-                        Debug.WriteLine("adding " + tempitem.Value.name + " to UNHINTABLE starting moves");
+                        if (move == "Camera and Shockwave") continue;
+                        var tempitem = DK64Items.FirstOrDefault(x => x.Value.name == move);
+                        if (tempitem.Key != 36)
+                        {
+                            startingNotHintable.Add(tempitem.Key);
+                            Debug.WriteLine("adding " + tempitem.Value.name + " to UNHINTABLE starting moves");
+                        }
+                        else
+                        {
+                            // slams are handled seperately, and arent in the startingNotHintable list
+                            stupidStartingSlam = true;
+                            Debug.WriteLine("adding starting slam to UNHINTABLE starting moves");
+                        }
                     }
-                    //else
-                    //{
-                    //    // slams are handled seperately, and arent in the startingItems list
-                    //    howManySlams += 1;
-                    //    Debug.WriteLine("adding " + howManySlams + "th SLAM to slamcount");
-                    //}
+                } catch (Exception)
+                {
+
                 }
             }
             // adds certian shopkeeps as starting items for seeds that dont have them in the pool, so they arent erroneously added to Isles upon tracking
@@ -604,6 +611,7 @@ namespace GSTHD
                             {
                                 isStarting = true;
                                 addedpoints = (pointsMode) ? 0 : -1;
+                                if (stupidStartingSlam) howMany -= 1;
                             }
                             else
                             {
